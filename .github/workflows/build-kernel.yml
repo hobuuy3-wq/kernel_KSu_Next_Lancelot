@@ -178,7 +178,7 @@ jobs:
         if [ ${{ env.KSU_REVERT }} = true ]; then
             git apply $GITHUB_WORKSPACE/patches/KSU_REVERT.patch
         fi
-        
+
     - name: Setup Configuration for Kernel
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
@@ -220,7 +220,7 @@ jobs:
                       CONFIG_KPM=y \
                       CONFIG_KALLSYMS=y \
                       CONFIG_KALLSYMS_ALL=y
-                     
+
         do
         echo "$config" >> arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG }}
         done
@@ -301,18 +301,18 @@ jobs:
           export KSU_EXPECTED_SIZE=${{ env.KSU_EXPECTED_SIZE }}
           export KSU_EXPECTED_HASH=${{ env.KSU_EXPECTED_HASH }}
         fi
-        make -j$(nproc --all) CC=clang O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }} ${{ env.KERNEL_CONFIG }}
+        make -j$(nproc --all) CC=clang V=1 O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }} ${{ env.KERNEL_CONFIG }}
         if [ ${{ env.ENABLE_CCACHE }} = true ]; then
             if [ ${{ env.USE_CUSTOM_GCC }} = true ]; then
-                make -j$(nproc --all) CC="ccache gcc" O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
+                make -j$(nproc --all) CC="ccache gcc" V=1 O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
             else
-                make -j$(nproc --all) CC="ccache clang" O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
+                make -j$(nproc --all) CC="ccache clang" V=1 O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
             fi
         else
             if [ ${{ env.USE_CUSTOM_GCC }} = true ]; then
-                make -j$(nproc --all) CC=gcc O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
+                make -j$(nproc --all) CC=gcc V=1 O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
             else
-                make -j$(nproc --all) CC=clang O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
+                make -j$(nproc --all) CC=clang V=1 O=out ARCH=${{ env.KERNEL_ARCH }} ${{ env.EXTRA_CMDS }}
             fi
         fi
 
@@ -416,7 +416,7 @@ jobs:
       env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    
+
     - name: Upload DTBO Image to Release
       if: env.CHECK_DTBO_IS_OK == 'true'
       uses: actions/upload-release-asset@v1
@@ -427,8 +427,8 @@ jobs:
        asset_path: kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot/dtbo.img
        asset_name: dtbo-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.img
        asset_content_type: application/octet-stream
-    
-    
+
+
     - name: Upload Boot Image to Release
       if: env.MAKE_BOOT_IMAGE_IS_OK == 'true'
       uses: actions/upload-release-asset@v1
